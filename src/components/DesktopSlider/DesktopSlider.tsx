@@ -40,7 +40,7 @@ const DesktopSlider: FC<{
             key={item}
             className={`${
               activeIndex === index ? "bg-blue-300" : "bg-blue-500"
-            } border-blue-200 border w-[80%] max-w-[730px] h-full hover:bg-blue-400 backface rounded-[20px] flex-none preserve-3d transition-all duration-500`}
+            } border-blue-200 border w-[80%] max-w-[730px] h-full hover:bg-blue-400 backface-hidden rounded-[20px] flex-none preserve-3d transition-all duration-500`}
           >
             {item}
           </div>

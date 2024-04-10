@@ -3,12 +3,8 @@
 @tailwind utilities;
 
 @layer utilities {
-  .backface {
-    transform-origin: center bottom;
-    -webkit-backface-visibility: hidden;
+  .backface-hidden {
     backface-visibility: hidden;
-    overflow: hidden;
-    transform-style: preserve-3d;
   }
   .preserve-3d {
     transform-style: preserve-3d;
