@@ -1,22 +1,26 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import useRefArray from "../../hooks/useRefArray";
 
 const DesktopSlider: FC<{
   items: string[];
 }> = ({ items }) => {
   const itemRefs = useRefArray<HTMLDivElement | null>(items.length);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [itemWidth, setItemWidth] = useState<number>(0);
+  const [containerWidth, setContainerWidth] = useState<number>(0);
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   useEffect(() => {
     setItemWidth(itemRefs[0]?.current?.clientWidth ?? 0);
-  }, [itemRefs]);
+    setContainerWidth(containerRef?.current?.clientWidth ?? 0);
+  }, [itemRefs, containerRef]);
 
   return (
     <div className="w-full hidden flex-col gap-4 lg:flex">
       <div
+        ref={containerRef}
         style={{
-          transform: `translateX(${itemWidth / 5}px)`,
+          transform: `translateX(${(containerWidth - itemWidth) / 2}px)`,
         }}
         className={`w-full h-[400px] flex preserve-3d perspective-1200px cursor-grab`}
       >
