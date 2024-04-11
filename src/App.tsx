@@ -1,4 +1,3 @@
-import { useState } from "react";
 import DesktopSlider from "./components/DesktopSlider/DesktopSlider";
 
 function App() {
