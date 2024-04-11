@@ -1,5 +1,6 @@
 import { FC, useEffect, useRef, useState } from "react";
 import useRefArray from "../../hooks/useRefArray";
+import { useSwipeable } from "react-swipeable";
 
 const DesktopSlider: FC<{
   items: string[];
@@ -10,48 +11,72 @@ const DesktopSlider: FC<{
   const [containerWidth, setContainerWidth] = useState<number>(0);
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
+  const handleLeft = () => {
+    setActiveIndex((prev) => (prev <= 0 ? prev : prev - 1));
+  };
+  const handleRight = () => {
+    setActiveIndex((prev) => (prev >= items.length ? prev : prev + 1));
+  };
+
+  const handler = useSwipeable({
+    onSwiped: (e) => {
+      if (e.dir === "Left") handleRight();
+      if (e.dir === "Right") handleLeft();
+    },
+  });
+
   useEffect(() => {
-    setItemWidth(itemRefs[0]?.current?.clientWidth ?? 0);
-    setContainerWidth(containerRef?.current?.clientWidth ?? 0);
+    const handleWidth = () => {
+      setItemWidth(itemRefs[0]?.current?.clientWidth ?? 0);
+      setContainerWidth(containerRef?.current?.clientWidth ?? 0);
+    };
+    handleWidth();
+    window.addEventListener("resize", handleWidth);
+    return () => {
+      window.removeEventListener("resize", handleWidth);
+    };
   }, [itemRefs, containerRef]);
 
   return (
-    <div className="w-full hidden flex-col gap-4 lg:flex">
+    <div className="w-full flex flex-col gap-4 lg:flex">
       <div
         ref={containerRef}
         style={{
           transform: `translateX(${(containerWidth - itemWidth) / 2}px)`,
         }}
-        className={`w-full h-[400px] flex preserve-3d perspective-1200px cursor-grab`}
+        className={`w-full h-[400px] cursor-grab`}
       >
-        {items.map((item, index) => (
-          <div
-            ref={itemRefs[index]}
-            onClick={() => setActiveIndex(index)}
-            style={{
-              zIndex:
-                activeIndex === index
-                  ? items.length
-                  : items.length - Math.abs(index - activeIndex),
-              transform: `translate3d(calc(${14 * (index - activeIndex)}% - ${
-                itemWidth * index
-              }px), 0px, ${-100 * Math.abs(index - activeIndex)}px)`,
-            }}
-            key={item}
-            className={`${
-              activeIndex === index ? "bg-blue-300" : "bg-blue-500"
-            } border-blue-200 border w-[80%] max-w-[730px] h-full hover:bg-blue-400 backface-hidden rounded-[20px] flex-none preserve-3d transition-all duration-500`}
-          >
-            {item}
-          </div>
-        ))}
+        <div
+          {...handler}
+          className="flex preserve-3d perspective-1200px w-full h-full"
+        >
+          {items.map((item, index) => (
+            <div
+              ref={itemRefs[index]}
+              onClick={() => setActiveIndex(index)}
+              style={{
+                zIndex:
+                  activeIndex === index
+                    ? items.length
+                    : items.length - Math.abs(index - activeIndex),
+                transform: `translate3d(calc(${14 * (index - activeIndex)}% - ${
+                  itemWidth * index
+                }px), 0px, ${-100 * Math.abs(index - activeIndex)}px)`,
+              }}
+              key={item}
+              className={`${
+                activeIndex === index ? "bg-blue-300" : "bg-blue-500"
+              } border-blue-200 border w-[80%] max-w-[730px] h-full hover:bg-blue-400 backface-hidden rounded-[20px] flex-none preserve-3d transition-all duration-500 flex items-center justify-center font-medium text-5xl`}
+            >
+              {item}
+            </div>
+          ))}
+        </div>
       </div>
       <div className="flex justify-center gap-5">
         {activeIndex !== 0 ? (
           <span
-            onClick={() =>
-              setActiveIndex((prev) => (prev <= 0 ? prev : prev - 1))
-            }
+            onClick={handleLeft}
             className="bg-blue-300 w-[40px] h-[40px] rounded-[50%] flex items-center justify-center cursor-pointer"
           >
             <svg
@@ -70,9 +95,7 @@ const DesktopSlider: FC<{
         ) : null}
         {activeIndex !== items.length - 1 ? (
           <span
-            onClick={() =>
-              setActiveIndex((prev) => (prev >= items.length ? prev : prev + 1))
-            }
+            onClick={handleRight}
             className="bg-blue-300 w-[40px] h-[40px] rounded-[50%] flex items-center justify-center cursor-pointer"
           >
             <svg
